@@ -1,0 +1,6 @@
+You'll need the following libraries:
+
+	- libpulse-dev
+	- libportaudio-dev
+	- libespeak-dev
+	- libpocketsphinx-dev
