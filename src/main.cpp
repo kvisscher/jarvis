@@ -13,6 +13,10 @@
 
 #define BUF_SIZE 1024 << 6
 
+#define JARVIS_ACOUSTIC_MODEL "hmm/en_US/hub4wsj_sc_8k"
+#define JARVIS_DICT "9133.dic"
+#define JARVIS_LANG_MODEL "7859.lm"
+
 pa_simple* playback = NULL;
 
 int espeak_synth_callback(short* wav, int numsamples, espeak_EVENT* events)
@@ -140,9 +144,9 @@ int main()
 	cmd_ln_t* config;
 
 	config = cmd_ln_init(NULL, ps_args(), TRUE,
-	                     "-hmm", "hmm/en_US/hub4wsj_sc_8k",
-	                     "-lm", "7859.lm",
-	                     "-dict", "9133.dic",
+	                     "-hmm", JARVIS_ACOUSTIC_MODEL,
+	                     "-lm", JARVIS_LANG_MODEL,
+	                     "-dict", JARVIS_DICT,
 	                     NULL);
 
 	if (config == NULL)
