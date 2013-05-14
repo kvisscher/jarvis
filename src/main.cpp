@@ -19,6 +19,9 @@
 // after waking him up
 #define JARVIS_TIME_TO_OBEY 5
 
+
+// Test comment
+
 pa_simple* playback = NULL;
 
 // Time when the command mode was last activated
