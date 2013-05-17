@@ -1,10 +1,10 @@
 # Compiler options
 CC= g++
-CFLAGS = -Wall $(POCKETSPHINX_INCLUDES) -Ibuild
-LDFLAGS = -lpulse-simple -lpulse -lespeak $(POCKETSPHINX_LIBS)
+CFLAGS = -Wall $(POCKETSPHINX_INCLUDES) -Ibuild -Iinclude
+LDFLAGS = -lespeak -lportaudio $(POCKETSPHINX_LIBS) -Iinclude
 
 # Space seperated list of files to compile
-SOURCES = src/main.cpp
+SOURCES = $(wildcard src/*.cc)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # The name of the executable
