@@ -6,9 +6,9 @@ Jarvis brought to life :)
 
 To compile "jarvis" you'll need the following libraries:
 
-* libpulse-dev
 * libportaudio-dev
 * libespeak-dev
+* libsphinxbase-dev
 * libpocketsphinx-dev
 
 ## Compatibility ##
