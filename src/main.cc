@@ -1,3 +1,16 @@
+#include "robo_assistant.h"
+
+int main()
+{
+	DefaultEars ears;
+	DefaultMouth mouth;
+
+	Brain brain(&ears, &mouth);
+	
+	RoboAssistant jarvis(&brain);
+}
+
+/*
 #include <pulse/pulseaudio.h>
 #include <pulse/simple.h>
 #include <pocketsphinx.h>
@@ -261,3 +274,4 @@ int main()
 	
 	return 0;        
 }
+*/
