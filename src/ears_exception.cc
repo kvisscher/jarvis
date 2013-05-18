@@ -1,10 +1,9 @@
 #include "ears_exception.h"
 
-EarsException::EarsException(std::string message) : message(message)
+EarsException::EarsException(const std::string& message) : std::runtime_error(message)
 {
 }
 
-const char* EarsException::what() const throw()
+EarsException::~EarsException() throw()
 {
-	return this->message.c_str();
-} 
+}

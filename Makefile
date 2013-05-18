@@ -18,6 +18,7 @@ all: $(SOURCES) $(EXECUTABLE)
 
 # Compiles all of the object files
 $(EXECUTABLE): $(OBJECTS)
+	@echo Compiling $@..
 	$(CC) $(OBJECTS) -o $@ $(LDFLAGS) 
 	
 # $@ expands to the name of the output file (e.g. main.o)
@@ -25,7 +26,6 @@ $(EXECUTABLE): $(OBJECTS)
 .cpp.o:
 	@echo Compiling $< ..
 	$(CC) $(CFLAGS) -o $@ -c $<
-	@echo Done!
-	
+
 clean:
-	rm $(OBJECTS) $(EXECUTABLE)
+	rm jarvis

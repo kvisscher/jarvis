@@ -2,16 +2,13 @@
 #define EARS_EXCEPTION_H
 
 #include <string>
-#include <exception>
+#include <stdexcept>
 
-class EarsException : public std::exception
+class EarsException : public std::runtime_error
 {
-private:
-	std::string message;
 public:
-	EarsException(std::string message);
-	virtual ~EarsException() throw();
-	virtual const char* what() const throw();
+	EarsException(const std::string& message);
+	~EarsException() throw();
 };
 
 #endif
