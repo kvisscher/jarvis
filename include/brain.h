@@ -2,9 +2,10 @@
 #define BRAIN_H
 
 #include "ears.h"
+#include "ears_listener.h"
 #include "mouth.h"
 
-class Brain : public EarsListeners
+class Brain : public EarsListener
 {
 private:
 	Ears* ears;

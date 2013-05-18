@@ -3,8 +3,8 @@
 
 #include "ears.h"
 
-#include <pocketsphinx>
-#include <portaudio>
+#include <pocketsphinx.h>
+#include <portaudio.h>
 
 class DefaultEars : public Ears
 {
@@ -12,12 +12,15 @@ private:
 	ps_decoder_t* ps;
 	PaStream* stream;
 	
-	void initializePortAudio() throws();
-	int onPortAudioCallback(const void* input, void* output,
-				unsigned long frameCount, const PaStreamCallbackTimeInfo* timeInfo,
-				PaStreamCallbackFlags statusFlags, void *userData) throws();	
+	void initializePortAudio() throw(EarsException);
+	PaError onPortAudioCallback(void* inputBuffer, void* outputBuffer,
+                                                unsigned long framesPerBuffer,
+                                                PaTimestamp outTime);
+	static PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
+						unsigned long framesPerBuffer,
+						PaTimestamp outTime, void *userData);
 public:
-	DefaultEars();
+	DefaultEars() throw(EarsException);
 	virtual ~DefaultEars();
 };
 

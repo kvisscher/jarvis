@@ -1,6 +1,6 @@
 #include "ears.h"
 
-Ears::Ears()
+Ears::Ears() throw(EarsException)
 {
 }
 

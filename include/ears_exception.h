@@ -10,6 +10,8 @@ private:
 	std::string message;
 public:
 	EarsException(std::string message);
+	virtual ~EarsException() throw();
+	virtual const char* what() const throw();
 };
 
 #endif

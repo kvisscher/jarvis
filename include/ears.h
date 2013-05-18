@@ -11,7 +11,7 @@ private:
 protected:
 	EarsListener* getListener() const;
 public:
-	Ears();
+	Ears() throw(EarsException);
 	virtual ~Ears();
 	void setListener(EarsListener* listener);
 };

@@ -1,7 +1,7 @@
 # Compiler options
 CC= g++
-CFLAGS = -Wall $(POCKETSPHINX_INCLUDES) -Ibuild -Iinclude
-LDFLAGS = -lespeak -lportaudio $(POCKETSPHINX_LIBS) -Iinclude
+CFLAGS = -Wall $(POCKETSPHINX_INCLUDES) -Ibuild -Iinclude -I/usr/include
+LDFLAGS = -lespeak -lportaudio $(POCKETSPHINX_LIBS) -Iinclude -Ibuild -I/usr/include
 
 # Space seperated list of files to compile
 SOURCES = $(wildcard src/*.cc)
@@ -12,7 +12,7 @@ EXECUTABLE = jarvis
 
 # Add pocketsphinx libraries and includes
 CFLAGS  += `pkg-config --cflags-only-I pocketsphinx`
-LDFLAGS += `pkg-config --libs pocketsphinx`
+LDFLAGS += `pkg-config --libs --cflags pocketsphinx`
 
 all: $(SOURCES) $(EXECUTABLE)
 
