@@ -1,5 +1,8 @@
 #include "robo_assistant.h"
 
+#include "default_mouth.h"
+#include "default_ears.h"
+
 int main()
 {
 	DefaultEars ears;

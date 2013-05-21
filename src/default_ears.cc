@@ -78,7 +78,7 @@ int DefaultEars::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 					  unsigned long framesPerBuffer, 
 					  PaTimestamp outTime, void *userData)
 {
-	DefaultEars* ears = reinterpret_cast<DefaultEars*>(userData);
+	DefaultEars* ears = static_cast<DefaultEars*>(userData);
 	return ears->onPortAudioCallback(inputBuffer, outputBuffer, framesPerBuffer, outTime);
 }
 

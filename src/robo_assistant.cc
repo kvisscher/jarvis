@@ -2,9 +2,10 @@
 
 RoboAssistant::RoboAssistant(Brain* brain) : brain(brain)
 {
+	brain->getMouth()->speak("Hello world");
 }
 
-RoboAssistant::~RoboAssistants()
+RoboAssistant::~RoboAssistant()
 {
 	delete this->brain;
 }

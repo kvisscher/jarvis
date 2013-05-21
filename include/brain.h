@@ -14,6 +14,8 @@ public:
 	Brain(Ears* ears, Mouth* mouth);
 	virtual ~Brain();
 	void notifyHeardText(const std::string& text);
+	Ears* getEars() const;
+	Mouth* getMouth() const;
 };
 
 #endif

@@ -1,21 +1,26 @@
 #include "default_mouth.h"
 
+#include <iostream>
+
+#include <portaudio.h>
 #include "speak_lib.h"
 
 DefaultMouth::DefaultMouth()
 {
-        int sample_rate = espeak_Initialize(
-                AUDIO_OUTPUT_RETRIEVAL,
-                0, // Buffer length
-                NULL, // espeak data path, null for default
-                0 // options?
-        );
+	int sample_rate = espeak_Initialize(
+			AUDIO_OUTPUT_RETRIEVAL,
+			0, // Buffer length
+			NULL, // espeak data path, null for default
+			0 // options?
+	);
 
-        // Let espeak use the english voice
-        espeak_SetVoiceByName("english-us");
-        
-        // Callback handler for synth
-        espeak_SetSynthCallback(&espeak_synth_callback);
+	// Let espeak use the english voice
+	espeak_SetVoiceByName("english-us");
+	
+	// Callback handler for synth
+	espeak_SetSynthCallback(&DefaultMouth::eSpeakCallbackWrapper);
+	
+	Pa_Initialize();
 }
 
 DefaultMouth::~DefaultMouth()
@@ -27,39 +32,67 @@ void DefaultMouth::speak(const std::string& text)
 {
 	espeak_Synth(
 		text.c_str(),
-                text.length(),
-                0,
-                POS_CHARACTER,
-                0,
-                espeakCHARS_AUTO, 
-                NULL, 
-                this
+		text.length(),
+		0,
+		POS_CHARACTER,
+		0,
+		espeakCHARS_AUTO, 
+		NULL, 
+		this
 	);
         
-        if (espeak_Synchronize() < 0)
-        {
-                printf("failed to synthesize word: %s\n", word);
-        }
+	if (espeak_Synchronize() < 0)
+	{
+		std::cout << "failed to synthesize word: " << text << std::endl;
+	}
 }
 
-void DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
+int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
 {
 	// Are there samples to play?
-        if (numsamples == 0)
-                return 0;       
+	if (numsamples == 0)
+	{
+		std::cout << "no samples to play" << std::endl;
+		return 0;       
+	}
+	
+	PaStream* stream;
         
-	M
+    StreamData data;
+    data.numSamples = numsamples;
+    data.wav = wav;
+    data.stream = stream;
+        
+	PaError result = Pa_OpenStream(
+		&stream,
+		paNoDevice,
+		0, // Number of input channels to use
+		0, // Sample format for input
+		NULL, // Input device driver info. Optional
+		Pa_GetDefaultOutputDeviceID(), // ID of output device
+		2, // Num channels to use for output. 2 for stereo
+		paInt16, // Sample format?
+		NULL, // ?
+		11000, // Sample rate
+		8092, // framesPerBuffer. Not sure
+		1, // The number of buffers. Also, not sure :D
+		paNoFlag, // No special flags for the stream
+		&DefaultMouth::portAudioCallbackWrapper,
+		&data
+	);
+	
+	std::cout << "num samples: " << data.numSamples << std::endl;
+	
+	return 0;
+}
 
-        pa_simple* playback = (pa_simple*) events->user_data;
-
-        int err = 0;
-
-        // numsamples * 2 because pa_simple_write expects bytes and not shorts
-        if (pa_simple_write(playback, wav, numsamples * 2, &err) < 0)
-        {
-                printf("error playing espeak sample: %s\n", pa_strerror(err));
-                return 1;
-        }
-
-        return 0;
+PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
+										unsigned long framesPerBuffer,
+										PaTimestamp outTime, void *userData)
+{
+	std::cout << "Portaudio callback" << std::endl;
+	
+	StreamData* data = static_cast<StreamData*>(userData);
+	
+	std::cout << "num samples: " << data->numSamples << std::endl;
 }
