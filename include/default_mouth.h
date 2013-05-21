@@ -22,6 +22,8 @@ private:
 	static PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 											unsigned long framesPerBuffer,
 											PaTimestamp outTime, void *userData);	
+											
+	int eSpeakCallback(short* wav, int numsamples);
 public:
 	DefaultMouth();
 	virtual ~DefaultMouth();

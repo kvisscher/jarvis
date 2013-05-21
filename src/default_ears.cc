@@ -54,26 +54,6 @@ DefaultEars::~DefaultEars()
 	Pa_Terminate();
 }
 
-/*
-
-PaError Pa_OpenStream( PortAudioStream** stream,
-                       PaDeviceID inputDevice,
-                       int numInputChannels,
-                       PaSampleFormat inputSampleFormat,
-                       void *inputDriverInfo,
-                       PaDeviceID outputDevice,
-                       int numOutputChannels,
-                       PaSampleFormat outputSampleFormat,
-                       void *outputDriverInfo,
-                       double sampleRate,
-                       unsigned long framesPerBuffer,
-                       unsigned long numberOfBuffers,
-                       PaStreamFlags streamFlags,
-                       PortAudioCallback *callback,
-                       void *userData );
-
-*/
-
 int DefaultEars::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 					  unsigned long framesPerBuffer, 
 					  PaTimestamp outTime, void *userData)
@@ -85,6 +65,18 @@ int DefaultEars::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 void DefaultEars::initializePortAudio() throw(EarsException)
 {
 	Pa_Initialize();
+
+	int numdevices = Pa_CountDevices();
+	
+	for (int i = 0; i < numdevices; i++)
+	{
+		const PaDeviceInfo* device = Pa_GetDeviceInfo(i);
+		
+		std::cout << "device #" << i << ": " << device->name << std::endl;
+	}
+
+	if (numdevices == 0)
+		std::cout << "no input or output devices.." << std::endl;
 
 	PaError result = Pa_OpenStream(
 		&this->stream,

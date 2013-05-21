@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "robo_assistant.h"
 
 #include "default_mouth.h"
@@ -11,6 +13,8 @@ int main()
 	Brain brain(&ears, &mouth);
 	
 	RoboAssistant jarvis(&brain);
+	
+	getchar();
 }
 
 /*

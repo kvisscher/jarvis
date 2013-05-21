@@ -47,13 +47,12 @@ void DefaultMouth::speak(const std::string& text)
 	}
 }
 
-int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
+int DefaultMouth::eSpeakCallback(short* wav, int numsamples)
 {
-	// Are there samples to play?
 	if (numsamples == 0)
 	{
 		std::cout << "no samples to play" << std::endl;
-		return 0;       
+		return 0;
 	}
 	
 	PaStream* stream;
@@ -81,12 +80,16 @@ int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT
 		&data
 	);
 	
-	std::cout << "num samples: " << data.numSamples << std::endl;
-	
-	return 0;
+	std::cout << "num samples: " << data.numSamples << std::endl;	
 }
 
-PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
+int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
+{
+	DefaultMouth* mouth = static_cast<DefaultMouth*>(events->user_data);
+	return mouth->eSpeakCallback(wav, numsamples);
+}
+
+PaError DefaultMouth::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 										unsigned long framesPerBuffer,
 										PaTimestamp outTime, void *userData)
 {
