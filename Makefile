@@ -10,9 +10,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 # The name of the executable
 EXECUTABLE = jarvis
 
-# Add pocketsphinx libraries and includes
-CFLAGS  += `pkg-config --cflags-only-I pocketsphinx`
-LDFLAGS += `pkg-config --libs --cflags pocketsphinx`
+# Add pocketsphinx and portaudio libraries and includes
+CFLAGS  += `pkg-config --cflags-only-I pocketsphinx` `pkg-config --libs --cflags portaudio-2.0`
+LDFLAGS += `pkg-config --libs --cflags pocketsphinx` `pkg-config --libs --cflags portaudio-2.0`
 
 all: $(SOURCES) $(EXECUTABLE)
 

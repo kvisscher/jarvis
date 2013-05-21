@@ -55,6 +55,7 @@ int DefaultMouth::eSpeakCallback(short* wav, int numsamples)
 		return 0;
 	}
 	
+	/*
 	PaStream* stream;
         
     StreamData data;
@@ -80,7 +81,7 @@ int DefaultMouth::eSpeakCallback(short* wav, int numsamples)
 		&data
 	);
 	
-	std::cout << "num samples: " << data.numSamples << std::endl;	
+	st--d::cout << "num samples: " << data.numSamples << std::endl;	*/
 }
 
 int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
@@ -91,7 +92,7 @@ int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT
 
 PaError DefaultMouth::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 										unsigned long framesPerBuffer,
-										PaTimestamp outTime, void *userData)
+										double outTime, void *userData)
 {
 	std::cout << "Portaudio callback" << std::endl;
 	

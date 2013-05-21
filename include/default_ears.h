@@ -15,10 +15,10 @@ private:
 	void initializePortAudio() throw(EarsException);
 	PaError onPortAudioCallback(void* inputBuffer, void* outputBuffer,
                                                 unsigned long framesPerBuffer,
-                                                PaTimestamp outTime);
+                                                double outTime);
 	static PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 						unsigned long framesPerBuffer,
-						PaTimestamp outTime, void *userData);
+						double outTime, void *userData);
 public:
 	DefaultEars() throw(EarsException);
 	virtual ~DefaultEars();

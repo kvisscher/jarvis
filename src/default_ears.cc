@@ -56,7 +56,7 @@ DefaultEars::~DefaultEars()
 
 int DefaultEars::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
 					  unsigned long framesPerBuffer, 
-					  PaTimestamp outTime, void *userData)
+					  double outTime, void *userData)
 {
 	DefaultEars* ears = static_cast<DefaultEars*>(userData);
 	return ears->onPortAudioCallback(inputBuffer, outputBuffer, framesPerBuffer, outTime);
@@ -66,7 +66,7 @@ void DefaultEars::initializePortAudio() throw(EarsException)
 {
 	Pa_Initialize();
 
-	int numdevices = Pa_CountDevices();
+	int numdevices = Pa_GetDeviceCount();
 	
 	for (int i = 0; i < numdevices; i++)
 	{
@@ -78,6 +78,7 @@ void DefaultEars::initializePortAudio() throw(EarsException)
 	if (numdevices == 0)
 		std::cout << "no input or output devices.." << std::endl;
 
+	/*
 	PaError result = Pa_OpenStream(
 		&this->stream,
 		Pa_GetDefaultInputDeviceID(),
@@ -107,11 +108,12 @@ void DefaultEars::initializePortAudio() throw(EarsException)
 	{
 		throw EarsException("error starting portaudio stream");
 	}
+	*/
 }
 
 int DefaultEars::onPortAudioCallback(void* inputBuffer, void* outputBuffer,
 					 unsigned long framesPerBuffer,
-					 PaTimestamp outTime)
+					 double outTime)
 {
 	if (ps_start_utt(ps, "default_ears") < 0)
 	{
