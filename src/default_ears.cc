@@ -11,7 +11,6 @@
 
 DefaultEars::DefaultEars() throw(EarsException)
 {
-	ps_decoder_t* ps;
 	cmd_ln_t* config;
 	
 	config = cmd_ln_init(
@@ -29,9 +28,9 @@ DefaultEars::DefaultEars() throw(EarsException)
 		throw EarsException("error while initializing pocketsphinx config");
 	}
 	
-	ps = ps_init(config);
+	this->ps = ps_init(config);
 
-	if (ps == NULL)
+	if (this->ps == NULL)
 	{
 		throw EarsException("error initializing pocketsphinx decoder");
 	}
@@ -54,18 +53,24 @@ DefaultEars::~DefaultEars()
 	Pa_Terminate();
 }
 
-int DefaultEars::portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
-					  unsigned long framesPerBuffer, 
-					  double outTime, void *userData)
+int DefaultEars::onPortAudioCallbackWrapper(const void* input, void* output,
+					  unsigned long frameCount, 
+					  const PaStreamCallbackTimeInfo* timeInfo,
+					  PaStreamCallbackFlags statusFlags, void* userData)
 {
+	std::cout << "onPortAudioCallbackWrapper(): " << statusFlags << ", userData: " << userData << " frames: " << frameCount << std::endl;	
+
 	DefaultEars* ears = static_cast<DefaultEars*>(userData);
-	return ears->onPortAudioCallback(inputBuffer, outputBuffer, framesPerBuffer, outTime);
+	return ears->onPortAudioCallback(input, output, frameCount, timeInfo, statusFlags);
 }
 
 void DefaultEars::initializePortAudio() throw(EarsException)
 {
 	Pa_Initialize();
 
+	// TODO: Check for a device that can be abused. If any at all
+
+	/*
 	int numdevices = Pa_GetDeviceCount();
 	
 	for (int i = 0; i < numdevices; i++)
@@ -75,61 +80,94 @@ void DefaultEars::initializePortAudio() throw(EarsException)
 		std::cout << "device #" << i << ": " << device->name << std::endl;
 	}
 
+	const PaDeviceInfo* info = Pa_GetDeviceInfo(Pa_GetDefaultOutputDevice());
+	const PaDeviceInfo* info1 = Pa_GetDeviceInfo(Pa_GetDefaultInputDevice());
+
+	std::cout << "default output device: " << info->name << std::endl;
+	std::cout << "default input device: " << info1->name << std::endl;
+
 	if (numdevices == 0)
 		std::cout << "no input or output devices.." << std::endl;
+	*/
 
-	/*
+	PaDeviceIndex defaultInputDeviceIndex = Pa_GetDefaultInputDevice();
+	const PaDeviceInfo* defaultInputDevice = Pa_GetDeviceInfo(defaultInputDeviceIndex);
+
+	if (defaultInputDeviceIndex < 0)
+	{
+		std::cout << "no default device input.." << std::endl;
+	}
+	
+	std::cout << "using " << defaultInputDevice->name << std::endl;
+
+	PaStreamParameters inputStreamParams;
+	inputStreamParams.device = defaultInputDeviceIndex;
+	inputStreamParams.channelCount = defaultInputDevice->maxInputChannels;
+	inputStreamParams.sampleFormat = paInt16;
+	inputStreamParams.hostApiSpecificStreamInfo = NULL;
+	
 	PaError result = Pa_OpenStream(
 		&this->stream,
-		Pa_GetDefaultInputDeviceID(),
-		1, // Number of input channels to use
-		paInt16, // Sample format for input
-		NULL, // Input device driver info. Optional
-		paNoDevice, // ID of output device
-		0, // Num channels. Not used because we haven't given an output device
-		0, // Sample format. Also not used
-		NULL,
-		16000, // Sample rate
-		8092, // framesPerBuffer. Not sure
-		1, // The number of buffers. Also, not sure :D
-		paNoFlag, // No special flags for the stream
-		&DefaultEars::portAudioCallbackWrapper,
-		this // Supply the current instance as userdata to the callback wrapper
+		&inputStreamParams,
+		NULL, // Output stream params. Null because this is input-only stream
+		8092, // Sample rate. Not sure what the value means
+		0, // Frames per buffer. 0 to let port audio do its thing
+		paNoFlag, // Optional stream flags
+		&DefaultEars::onPortAudioCallbackWrapper, // Function that's called by port audio whenever input is available
+		this // User data that is passed to the callback function
 	);
 	
 	if (result != paNoError)
 	{
-		throw EarsException("error opening portaudio stream");
+		std::string message;
+		message.append("error opening stream: ");
+		message.append(Pa_GetErrorText(result));
+
+		throw EarsException(message.c_str());
 	}
 	
 	result = Pa_StartStream(this->stream);
 	
 	if (result != paNoError)
 	{
-		throw EarsException("error starting portaudio stream");
+		std::string message;
+		message.append("error starting stream: ");
+		message.append(Pa_GetErrorText(result));
+
+		throw EarsException(message.c_str());
 	}
-	*/
 }
 
-int DefaultEars::onPortAudioCallback(void* inputBuffer, void* outputBuffer,
-					 unsigned long framesPerBuffer,
-					 double outTime)
+int DefaultEars::onPortAudioCallback(const void* input, void* output,
+				      unsigned long frameCount, 
+				      const PaStreamCallbackTimeInfo* timeInfo,
+			 	      PaStreamCallbackFlags statusFlags)
 {
-	if (ps_start_utt(ps, "default_ears") < 0)
+	short* audioData = (short*) input;
+
+	if (audioData == NULL)
+	{
+		std::cout << "no audio data" << std::endl;
+		return 0;
+	}
+
+	if (ps_start_utt(this->ps, "default_ears") < 0)
 	{
 		//throw EarsException("error starting utterance");
 		std::cout << "error starting utterance" << std::endl;
 		return 1;
 	}	
 
-	if (ps_process_raw(ps, (short*) inputBuffer, framesPerBuffer, 0, 1) < 0)
+	int searchedFrames = ps_process_raw(this->ps, audioData, frameCount, 0, 1);
+
+	if (searchedFrames < 0)
 	{
 		//throw EarsException("error decoding raw data");
 		std::cout << "error decoding raw data" << std::endl;
 		return 1;
 	}
 
-	if (ps_end_utt(ps) < 0)
+	if (ps_end_utt(this->ps) < 0)
 	{
 		//throw EarsException("error ending utterance");
 		std::cout << "error ending utterance" << std::endl;
@@ -142,15 +180,17 @@ int DefaultEars::onPortAudioCallback(void* inputBuffer, void* outputBuffer,
 	// Not sure what the score is meant to indicate
 	int score;
 
-	hyp = ps_get_hyp(ps, &score, NULL);
+	hyp = ps_get_hyp(this->ps, &score, NULL);
 
 	if (hyp == NULL || strlen(hyp) == 0)
 	{
 		// pocketsphinx was unable to make up
 		// anything from the sample		
+
 	}	
 	
-	std::cout << "TODO: The default ears heard something: " << hyp << std::endl;
+	std::cout << "searched " << searchedFrames << " frames" << std::endl;
+	std::cout << "TODO: The default ears heard something: " << (hyp == NULL ? "" : hyp) << " (SCORE: " << score << ")" << std::endl;
 
 	// Return 0 to keep on going. Any non-zero value will stop the stream	
 	return 0;

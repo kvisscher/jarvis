@@ -13,12 +13,15 @@ private:
 	PaStream* stream;
 	
 	void initializePortAudio() throw(EarsException);
-	PaError onPortAudioCallback(void* inputBuffer, void* outputBuffer,
-                                                unsigned long framesPerBuffer,
-                                                double outTime);
-	static PaError portAudioCallbackWrapper(void* inputBuffer, void* outputBuffer,
-						unsigned long framesPerBuffer,
-						double outTime, void *userData);
+
+	int onPortAudioCallback(const void *input, void *output,
+				unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo,
+				PaStreamCallbackFlags statusFlags);
+	
+
+	static int onPortAudioCallbackWrapper(const void *input, void *output,
+					      unsigned long frameCount, const PaStreamCallbackTimeInfo *timeInfo,
+					      PaStreamCallbackFlags statusFlags, void *userData);
 public:
 	DefaultEars() throw(EarsException);
 	virtual ~DefaultEars();

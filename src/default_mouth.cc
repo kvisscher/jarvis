@@ -20,7 +20,7 @@ DefaultMouth::DefaultMouth()
 	// Callback handler for synth
 	espeak_SetSynthCallback(&DefaultMouth::eSpeakCallbackWrapper);
 	
-	Pa_Initialize();
+//	Pa_Initialize();
 }
 
 DefaultMouth::~DefaultMouth()
@@ -30,6 +30,9 @@ DefaultMouth::~DefaultMouth()
 
 void DefaultMouth::speak(const std::string& text)
 {
+
+	return;
+
 	espeak_Synth(
 		text.c_str(),
 		text.length(),
@@ -54,6 +57,8 @@ int DefaultMouth::eSpeakCallback(short* wav, int numsamples)
 		std::cout << "no samples to play" << std::endl;
 		return 0;
 	}
+
+	return 0;
 	
 	/*
 	PaStream* stream;
@@ -86,6 +91,12 @@ int DefaultMouth::eSpeakCallback(short* wav, int numsamples)
 
 int DefaultMouth::eSpeakCallbackWrapper(short* wav, int numsamples, espeak_EVENT* events)
 {
+	if (numsamples == 0)
+	{
+		std::cout << "No samples to play" << std::endl;
+		return 0;
+	}
+
 	DefaultMouth* mouth = static_cast<DefaultMouth*>(events->user_data);
 	return mouth->eSpeakCallback(wav, numsamples);
 }

@@ -2,7 +2,6 @@
 
 RoboAssistant::RoboAssistant(Brain* brain) : brain(brain)
 {
-	brain->getMouth()->speak("Hello world");
 }
 
 RoboAssistant::~RoboAssistant()
